@@ -1,0 +1,47 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ProductsAPI.DAL.ViewModels;
+using ProductsAPI.DAL.ViewModels.Account;
+using ProductsAPI.Service.ProductService;
+using ProductsAPI.Service.UserService;
+
+namespace ProductsAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class UserController : ControllerBase
+    {
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
+        {
+            this._userService = userService;
+        }
+
+        [HttpGet]
+        public async Task<UserViewModel> GetUser(int id)
+        {
+            return await this._userService.GetUserById(id);
+        }
+
+        [HttpGet]
+        [Route("GetUsers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<List<UserViewModel>> GetUsers(int roleId = 0)
+        {
+            return await this._userService.GetUsers(roleId);
+        }
+
+        [HttpPut]
+        [Route("UpdateUser")]
+        public async Task<IActionResult> UpdateUser(EditUserViewModel formData)
+        {
+            //return updated user
+            return Ok(await this._userService.Update(formData));
+        }
+
+        //delete
+    }
+}
